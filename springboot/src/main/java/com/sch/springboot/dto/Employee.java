@@ -1,16 +1,46 @@
 package com.sch.springboot.dto;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDateTime;
+
+@Entity
 public class Employee {
-    private Long sno;
+
+    @Id
+    private int sno;
     private String name;
     private String department;
     private String address;
+//    private String edate;
+//
+//    public String getEdate() {
+//        return edate;
+//    }
+//
+//    public void setEdate(String edate) {
+//        this.edate = edate;
+//    }
 
-    public Long getSno() {
+    @Column(name = "edate", nullable = false)
+    private LocalDateTime edate;
+
+    @PrePersist
+    public void prePersist(){
+        if(this.edate == null){
+            this.edate = LocalDateTime.now();
+        }
+    }
+
+    public int getSno() {
         return sno;
     }
 
-    public void setSno(Long sno) {
+    public void setSno(int sno) {
         this.sno = sno;
     }
 

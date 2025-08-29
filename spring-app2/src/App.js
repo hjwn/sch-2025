@@ -1,6 +1,8 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export default function App() {
   const [page, setPage] = useState("home");
@@ -11,17 +13,17 @@ export default function App() {
 
   return (
     <div className="App">
-      <h1 className="App-title">사원 관리 프로그램(React)</h1>
+      <h1 className="App-title">회원관리 프로그램(React)</h1>
       {page === "home" && (
         <p>
           <span
             className="App-link"
             onClick={() => handleChangePage("register")}
           >
-            사원 등록{" "}
+            회원 등록{" "}
           </span>
           <span className="App-link" onClick={() => handleChangePage("list")}>
-            사원 리스트
+            회원 리스트
           </span>
         </p>
       )}
@@ -34,7 +36,7 @@ export default function App() {
 }
 
 /**
- * 사원 등록 컴포넌트
+ * 회원 등록 컴포넌트
  */
 function EmployeeRegister(props) {
   const [sno] = useState(Math.floor(Math.random() * 100000));
@@ -52,9 +54,10 @@ function EmployeeRegister(props) {
     };
 
     axios
-      .post("http://localhost:8080/api/employees/register", data)
+      .post("http://localhost:8080/api/members/register", data)
       .then((response) => {
-        if (response.data === 1) {
+        console.log(response.data);
+        if (response.data !== "") {
           alert("가입이 완료되었습니다");
           props.handleChangePage("home");
         }
@@ -74,7 +77,7 @@ function EmployeeRegister(props) {
               type="text"
               id="sno"
               name="sno"
-              placeholder="사번을 입력하세요"
+              placeholder="이름을 입력하세요"
               value={sno}
             />
           </li>
@@ -103,11 +106,11 @@ function EmployeeRegister(props) {
             />
           </li>
           <li>
-            <label htmlFor="name">부서명</label>
+            <label htmlFor="name">부서</label>
             <input
               type="text"
-              id="address"
-              name="address"
+              id="department"
+              name="department"
               placeholder="부서명을 입력하세요"
               onChange={(e) => {
                 setDepartment(e.target.value);
@@ -128,16 +131,40 @@ function EmployeeRegister(props) {
  */
 function EmployeeList(props) {
   const [employeeList, setEmployeeList] = useState([]);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/employees")
+      .get("http://localhost:8080/api/members")
       .then((response) => {
         console.log(response.data);
         setEmployeeList(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [count]);
+
+  function handleDeleteSuccess() {
+    setCount(count - 1);
+  }
+
+   function handleDelete(sno) {
+    alert(sno);
+    //axios => 스프링부트의 삭제 로직 호출!!
+    const data = { sno: sno };
+    
+    axios
+      .post("http://localhost:8080/api/members/delete", data)
+      .then((response) => {
+        if (response.data === "ok") {
+          alert("삭제가 완료되었습니다");
+          handleDeleteSuccess();
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+      
+  }
 
   return (
     <div>
@@ -149,6 +176,7 @@ function EmployeeList(props) {
             <th>주소</th>
             <th>부서</th>
             <th>입사일</th>
+            <th>삭제</th>
           </tr>
         </thead>
         <tbody>
@@ -158,7 +186,12 @@ function EmployeeList(props) {
               <td>{employee.name}</td>
               <td>{employee.address}</td>
               <td>{employee.department}</td>
-              <td>{employee.edate}</td>
+              <td>{employee.mdate}</td>
+              <td><FontAwesomeIcon
+                icon={faTrash}
+                className="trash"
+                onClick={() => handleDelete(employee.sno)}
+              /></td>
             </tr>
           ))}
         </tbody>

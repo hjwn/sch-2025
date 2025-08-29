@@ -2,20 +2,32 @@ package com.sch.springboot.service;
 
 import com.sch.springboot.dto.Employee;
 import com.sch.springboot.repository.EmployeeRepository;
+import com.sch.springboot.repository.JdbcTemplateEmployeeRepository;
+import com.sch.springboot.repository.JpaEmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @Service
 public class EmployeeService {
 
-    EmployeeRepository employeeRepository;
+    // jdbc 템플릿 사용
+//    private final JdbcTemplateEmployeeRepository employeeRepository;
+//
+//    @Autowired
+//    public EmployeeService(JdbcTemplateEmployeeRepository employeeRepository) {
+//        this.employeeRepository = employeeRepository;
+//    }
 
-    // 생성자를 이용하여 EmployeeRepositor를 Loose -> DI
+
+    // jpa
+    private final JpaEmployeeRepository employeeRepository;
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository){
-        this.employeeRepository = employeeRepository;
+    public EmployeeService(JpaEmployeeRepository jpaEmployeeRepository){
+        this.employeeRepository = jpaEmployeeRepository;
     }
 
     // 사원 리스트
@@ -24,7 +36,7 @@ public class EmployeeService {
     }
 
     // 사원 등록
-    public String register(Employee employee){
+    public int register(Employee employee){
         return employeeRepository.insert(employee);
     }
 }
